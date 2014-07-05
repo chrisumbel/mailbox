@@ -44,7 +44,7 @@ extern volatile unsigned char PTX;
 #define wl_module_CH			10
 #define wl_module_PAYLOAD		32
 #define wl_module_RF_DR_HIGH	0		//0 = 1Mbps, 1 = 2Mpbs
-#define wl_module_RF_SETUP		(RF_SETUP_RF_PWR_0 | RF_SETUP_RF_DR_250)
+#define wl_module_RF_SETUP		(RF_SETUP_RF_PWR_18 | RF_SETUP_RF_DR_250)
 #define wl_module_CONFIG		( (1<<MASK_RX_DR) | (1<<EN_CRC) | (1<<CRCO) )
 #define wl_module_TX_NR_0		0
 #define wl_module_TX_NR_1		1

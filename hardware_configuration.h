@@ -17,6 +17,8 @@ extern "C" {
 
 #define SWITCH_TRIS TRISBbits.TRISB14   // pin 25
 #define SWITCH_ANS  ANSBbits.ANSB14     // pin 25
+#define SWITCH_READ PORTB & (1 << 14)   // pin 25
+#define SWITCH_LAT  LATB & (1 << 14)    // pin 25
 
 #define WL_CE_TRIS      TRISBbits.TRISB5  // pin 14
 #define WL_CSN_TRIS     TRISBbits.TRISB15 // pin 26

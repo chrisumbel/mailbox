@@ -488,9 +488,9 @@ void wl_module_send(unsigned char * value, unsigned char len)
 void wl_module_radio_enable(void) {
     WL_POWER_LAT = 1;
 
-    __delay_10ms(10);	//wait for nRF24L01+ Module
+    __delay_10ms(3);	//wait for nRF24L01+ Module
     wl_module_init();	//initialise nRF24L01+ Module
-    __delay_10ms(10);	//wait for nRF24L01+ Module
+    __delay_10ms(3);	//wait for nRF24L01+ Module
 
     //ei();
 
@@ -500,6 +500,7 @@ void wl_module_radio_enable(void) {
 }
 
 void wl_module_radio_disable(void) {
+    wl_module_power_down();
     WL_POWER_LAT = 0;
 
     // LATDbits.LATD4 = 0;

@@ -10,6 +10,7 @@ void __delay_tick(int t) {
     T1CONbits.TCS = 1;
     T1CONbits.TECS = 0b10;
     T1CONbits.TCKPS = 0b00;
+    IEC0bits.T1IE = 0;
     T1CONbits.TON = 1;
     IFS0bits.T1IF = 0;
 
@@ -28,6 +29,7 @@ void __delay_ms(int ms) {
     T1CONbits.TCS = 1;
     T1CONbits.TECS = 0b10;
     T1CONbits.TCKPS = 0b00;
+    IEC0bits.T1IE = 0;
     T1CONbits.TON = 1;
     IFS0bits.T1IF = 0;
 
@@ -44,6 +46,7 @@ void __delay_10ms() {
     T1CONbits.TCS = 1;
     T1CONbits.TECS = 0b10;
     T1CONbits.TCKPS = 0b00;
+    IEC0bits.T1IE = 0;
     T1CONbits.TON = 1;
     IFS0bits.T1IF = 0;
 
@@ -60,6 +63,7 @@ void __delay_s(int s) {
     T1CONbits.TCS = 1;
     T1CONbits.TECS = 0b10;
     T1CONbits.TCKPS = 0b00;
+    IEC0bits.T1IE = 0;
     T1CONbits.TON = 1;
     IFS0bits.T1IF = 0;
 
