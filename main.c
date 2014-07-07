@@ -32,22 +32,23 @@ unsigned char payload[wl_module_PAYLOAD];
 
 void payload_send() {
     wl_module_radio_enable();
-    while(!wl_module_fifo_tx_empty());
 
-    int status = wl_module_get_status();
+    wl_module_CSN_lo; // Pull down chip select
+    int status = spi_fast_shift(NOOP); // Read status register
+    wl_module_CSN_hi; // Pull up chip select
 
-    if (status & (1<<TX_FULL)) {
-        wl_module_CE_hi; // Start transmission
-        wl_module_tx_flush();
-        wl_module_CE_lo;
+    if (status & (1<<TX_DS)){ // IRQ: Package has been sent
+                wl_module_config_register(STATUS, (1<<TX_DS)); //Clear Interrupt Bit
     }
 
-    if(status & (1<<MAX_RT)) {
-        wl_module_config_register(STATUS, (1<<MAX_RT));	// Clear Interrupt Bit
-        wl_module_CE_hi; // Start transmission
-        __delay_ms(1);
-        wl_module_CE_lo;
+    if (status & (1<<MAX_RT)){ // IRQ: Package has not been sent, send again
+            wl_module_config_register(STATUS, (1<<MAX_RT));	// Clear Interrupt Bit
+            wl_module_CE_hi; // Start transmission
+            __delay_ms(1);
+            wl_module_CE_lo;
     }
+
+    wl_module_tx_flush();
 
     wl_module_send(payload, wl_module_PAYLOAD);
     wl_module_radio_disable();
