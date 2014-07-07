@@ -64,7 +64,7 @@ void wl_module_config(void)
 // in receiving mode
 {
     // Set RF channel
-    wl_module_config_register(RF_CH,wl_module_CH);
+    wl_module_config_register(RF_CH, wl_module_CH);
 	// Set data speed & Output Power configured in wl_module.h
 	wl_module_config_register(RF_SETUP,wl_module_RF_SETUP);
 	// Set length of incoming payload
@@ -345,6 +345,16 @@ extern unsigned char wl_module_fifo_tx_empty(void)
 	return (data & FIFO_STATUS_TX_EMPTY);
 }
 
+extern unsigned char wl_module_fifo_tx_full(void)
+{
+	unsigned char data;
+
+	wl_module_read_register(FIFO_STATUS, &data, 1);
+
+
+	return (data & FIFO_STATUS_TX_FULL);
+}
+
 //returns true if RX_EMPTY bit in FIFO_STATUS register is set, false otherwise
 extern unsigned char wl_module_fifo_rx_empty(void)
 {
@@ -459,6 +469,11 @@ void wl_module_write_register(unsigned char reg, unsigned char * value, unsigned
     wl_module_CSN_hi;
 }
 
+void wl_module_tx_flush() {
+    wl_module_CSN_lo;                    // Pull down chip select
+    spi_fast_shift( FLUSH_TX );     // Write cmd to flush tx fifo
+    wl_module_CSN_hi;                    // Pull up chip select
+}
 
 void wl_module_send(unsigned char * value, unsigned char len)
 // Sends a data package to the default address. Be sure to send the correct
@@ -500,8 +515,20 @@ void wl_module_radio_enable(void) {
 }
 
 void wl_module_radio_disable(void) {
+    WL_CE_LAT = 1;
+    WL_CSN_LAT = 1;
+    WL_MOSI_LAT = 1;
+    WL_SCK_LAT = 1;
+    __delay_ms(2);
+
     wl_module_power_down();
+    __delay_ms(2);
+
     WL_POWER_LAT = 0;
+    WL_CE_LAT = 0;
+    WL_CSN_LAT = 0;
+    WL_MOSI_LAT = 0;
+    WL_SCK_LAT = 0;
 
     // LATDbits.LATD4 = 0;
 }

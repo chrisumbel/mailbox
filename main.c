@@ -8,7 +8,7 @@
 #include "nRF24L01.h"
 
 #pragma config FNOSC = FRC
-#pragma config FWDTEN = OFF
+#pragma config FWDTEN = ON, WDTPS = PS32768, FWPSA = PR32
 
 #define DEVICE_ID 0x0002
 
@@ -28,12 +28,36 @@ void status_timer_run(void) {
     IFS0bits.T1IF = 0;
 }
 
+unsigned char payload[wl_module_PAYLOAD];
+
+void payload_send() {
+    wl_module_radio_enable();
+    while(!wl_module_fifo_tx_empty());
+
+    int status = wl_module_get_status();
+
+    if (status & (1<<TX_FULL)) {
+        wl_module_CE_hi; // Start transmission
+        wl_module_tx_flush();
+        wl_module_CE_lo;
+    }
+
+    if(status & (1<<MAX_RT)) {
+        wl_module_config_register(STATUS, (1<<MAX_RT));	// Clear Interrupt Bit
+        wl_module_CE_hi; // Start transmission
+        __delay_ms(1);
+        wl_module_CE_lo;
+    }
+
+    wl_module_send(payload, wl_module_PAYLOAD);
+    wl_module_radio_disable();
+}
+
+unsigned int post_post_scalar;
+
 void main() {
     WL_POWER_LAT = 0;
     WL_POWER_TRIS = 0;
-    
-    FLOOD_LAT = 0;
-    FLOOD_TRIS = 0;
 
 #ifdef SWITCH_ANS
     SWITCH_ANS = 0;
@@ -42,53 +66,54 @@ void main() {
 
     alert = 0;
     clear = 0;
-
-    unsigned char payload[wl_module_PAYLOAD];
+    post_post_scalar = 0;
 
     payload[0] = DEVICE_ID << 8;
     payload[1] = DEVICE_ID;
-    
+    payload[2] = 0x01;
+
     logging_init();
-    
+    payload_send();
+
     while(1) {
-        FLOOD_LAT = 0;
         switch_init();
         status_timer_run();
         Sleep();
 
         if(alert) {
-            FLOOD_LAT = 1;
-
             logging_log("alert");
 
             payload[2] = 0x01;
-            wl_module_radio_enable();
-            wl_module_send(payload, wl_module_PAYLOAD);
-            wl_module_radio_disable();
+            payload_send();
         } else if (clear) {
             logging_log("clear");
             payload[2] = 0x00;
 
-            wl_module_radio_enable();
-            wl_module_send(payload, wl_module_PAYLOAD);
-            wl_module_radio_disable();
+            payload_send();
         }
 
         clear = alert = 0;
+        ClrWdt();
     }
 }
 
 
 void __attribute__((interrupt, auto_psv)) _ISR _T1Interrupt(void) {
-    /* have to read these to update state */
-    volatile int t1 = PORTB;
-    volatile int t2 = LATB;
-    t1 = PORTB;
+    post_post_scalar++;
 
-    if(SWITCH_READ) {
-        clear = 1;
-    } else {
-        alert = 1;
+    if(post_post_scalar >= 1) {
+         /* have to read these to update state */
+        volatile int t1 = PORTB;
+        volatile int t2 = LATB;
+        t1 = PORTB;
+
+        if(SWITCH_READ) {
+            clear = 1;
+        } else {
+            alert = 1;
+        }
+
+        post_post_scalar = 0;
     }
 
     if(until_eligable) {

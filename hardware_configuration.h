@@ -12,9 +12,6 @@
 extern "C" {
 #endif
 
-#define FLOOD_TRIS  TRISAbits.TRISA2
-#define FLOOD_LAT   LATAbits.LATA2
-
 #define SWITCH_TRIS TRISBbits.TRISB14   // pin 25
 #define SWITCH_ANS  ANSBbits.ANSB14     // pin 25
 #define SWITCH_READ PORTB & (1 << 14)   // pin 25

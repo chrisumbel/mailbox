@@ -41,7 +41,7 @@
 extern volatile unsigned char PTX;
 
 // WL-Module settings
-#define wl_module_CH			10
+#define wl_module_CH			24
 #define wl_module_PAYLOAD		32
 #define wl_module_RF_DR_HIGH	0		//0 = 1Mbps, 1 = 2Mpbs
 #define wl_module_RF_SETUP		(RF_SETUP_RF_PWR_18 | RF_SETUP_RF_DR_250)
@@ -88,6 +88,7 @@ extern void wl_module_get_rx_addr(unsigned char * data, unsigned char rxpipenum,
 extern unsigned char wl_module_get_rx_pipe(void);
 extern unsigned char wl_module_get_rx_pipe_from_status(unsigned char status);
 extern unsigned char wl_module_fifo_tx_empty(void);	//returns true if TX_EMPTY bit in FIFO_STATUS register is set, false otherwise
+extern unsigned char wl_module_fifo_tx_full(void);
 extern unsigned char wl_module_fifo_rx_empty(void);
 extern unsigned char wl_module_get_rf_ch(void);
 extern unsigned char wl_module_get_rf_setup(void);
